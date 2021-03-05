@@ -1,25 +1,62 @@
-import logo from './logo.svg';
+import React, { Component } from 'react';
 import './App.css';
+import {
+    BrowserRouter as Router, 
+    Route, 
+    Switch,
+} from 'react-router-dom';
+import PageHeader from './components/header.js';
+import HomePage from './Home/home.js';
+import BooksPage from './BookSearchPage/book-list-page.js'
+import FavoritesPage from './FavoritesPage/FavoritesPage.js'
+import SignUpPage from './AuthPages/signup.js'
+import LoginPage from './AuthPages/login.js'
+import { getUserFromLocalStorage, putUserInLocalStorage } from './local-staorage-utils.js';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+export default class App extends Component {
+    state = {
+    token: getUserFromLocalStorage()
+    }
+    handleTokenChange = (token) => { this.setState({ token }) 
+    putUserInLocalStorage(token);
+} 
+    render() {
+        return (
+            <div>
+                <Router>
+                    <PageHeader />
+                    <Switch>
+                        <Route 
+                            path="/" 
+                            exact
+                            render={(routerProps) => <HomePage {...routerProps} />} 
+                        />
+                        <Route 
+                            path="/books" 
+                            exact
+                            token={this.state.token}
+                            render={(routerProps) => <BooksPage token={this.state.token} {...routerProps} />} 
+                        />
+                        <Route 
+                            path="/api/favorites" 
+                            exact
+                            token={this.state.token}
+                            render={(routerProps) => <FavoritesPage token={this.state.token} {...routerProps} />} 
+                        />
+                        <Route 
+                            path="/signup" 
+                            exact
+                            render={(routerProps) => <SignUpPage handleTokenChange={this.handleTokenChange} {...routerProps} />} 
+                        />
+                        <Route 
+                            path="/login" 
+                            exact
+                            render={(routerProps) => <LoginPage handleTokenChange={this.handleTokenChange} {...routerProps} />} 
+                        />
+                    </Switch>
+                </Router>
+            </div>
+        )
+    }
 }
-
-export default App;
